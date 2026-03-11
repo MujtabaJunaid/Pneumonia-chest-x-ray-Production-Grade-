@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import time
+import copy
 import numpy as np
 from pathlib import Path
 from datetime import datetime
@@ -396,6 +397,9 @@ def main():
         generator=torch.Generator().manual_seed(SEED)
     )
     
+    # Duplicate dataset for validation to prevent overwriting training transform
+    val_dataset.dataset = copy.copy(full_train_dataset)
+    
     # Apply validation transform to validation split
     val_dataset.dataset.transform = val_transform
     
@@ -510,7 +514,7 @@ def main():
         
         print(f"{MESSAGES['epoch_summary'].format(epoch=epoch+1, loss=train_loss, acc=val_acc, f1=val_f1)}\n")
     
-        # Phase 4: Test set evaluation
+    # Phase 4: Test set evaluation
     print(f"\n{MESSAGES['testing']}")
     print(f"{MESSAGES['test_results']}\n")
     
