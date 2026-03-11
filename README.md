@@ -15,7 +15,7 @@
 
 **A production-grade, full-stack medical artificial intelligence application for automated pneumonia detection from chest X-ray imaging with enterprise-level security, compliance, and multi-language support.**
 
-[Quick Start](#quick-start) • [Documentation](documentation.md) • [Installation](#installation) • [Usage](#usage) • [Contributing](#contributing)
+[Quick Start](#quick-start) • [Documentation](documentation.md) • [Installation](#installation) • [Usage](#usage) • [Contributing](#contributing) •  [[LICENSE](LICENSE)] 
 
 </div>
 
