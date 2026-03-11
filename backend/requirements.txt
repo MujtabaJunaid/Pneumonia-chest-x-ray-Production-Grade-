@@ -1,0 +1,33 @@
+# FastAPI اور Uvicorn
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# ڈیٹابیس
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# ML / AI
+torch==2.1.1
+torchvision==0.16.1
+onnxruntime==1.16.3
+numpy==1.24.3
+pillow==10.1.0
+pydicom==2.4.0
+
+# ڈیٹا کی تصدیق
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# سیکیورٹی
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# ماحول کی ترتیب
+python-dotenv==1.0.0
+
+# CORS
+python-multipart==0.0.6
+
+# لاگنگ اور ڈیبگنگ
+python-json-logger==2.0.7

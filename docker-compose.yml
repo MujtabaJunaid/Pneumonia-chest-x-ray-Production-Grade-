@@ -1,0 +1,133 @@
+version: '3.9'
+
+# Docker Compose Configuration for Pneumonia AI Detector Full-Stack Application
+# Phase 4: Containerization
+
+services:
+  # PostgreSQL Database Service
+  db:
+    image: postgres:15-alpine
+    container_name: pneumonia_db
+    hostname: db
+    
+    environment:
+      POSTGRES_USER: pneumonia_user
+      POSTGRES_PASSWORD: pneumonia_secure_password_2026
+      POSTGRES_DB: pneumonia_detector
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=ur_PK.UTF-8"
+    
+    volumes:
+      # Persist database data
+      - postgres_data:/var/lib/postgresql/data
+    
+    ports:
+      - "5432:5432"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pneumonia_user -d pneumonia_detector"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    networks:
+      - pneumonia_network
+    
+    restart: unless-stopped
+
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pneumonia_backend
+    hostname: backend
+    
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://pneumonia_user:pneumonia_secure_password_2026@db:5432/pneumonia_detector
+      
+      # Application settings
+      DEBUG: "false"
+      ENV: "production"
+      
+      # ML Model settings
+      MODEL_PATH: /app/models/pneumonia_model.onnx
+      UPLOAD_DIR: /app/uploads
+      
+      # CORS settings
+      ALLOWED_ORIGINS: http://localhost,http://127.0.0.1,http://frontend
+    
+    volumes:
+      # Mount volumes for uploads and models
+      - backend_uploads:/app/uploads
+      - backend_models:/app/models
+    
+    ports:
+      - "8000:8000"
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - pneumonia_network
+    
+    restart: unless-stopped
+
+  # React Frontend Service with Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pneumonia_frontend
+    hostname: frontend
+    
+    depends_on:
+      - backend
+    
+    ports:
+      - "80:80"
+    
+    environment:
+      # Passed to Nginx for runtime configuration if needed
+      BACKEND_URL: http://backend:8000
+    
+    volumes:
+      # Mount Nginx logs
+      - frontend_logs:/var/log/nginx
+    
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    networks:
+      - pneumonia_network
+    
+    restart: unless-stopped
+
+# Persistent Volumes
+volumes:
+  postgres_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_models:
+    driver: local
+  frontend_logs:
+    driver: local
+
+# Network
+networks:
+  pneumonia_network:
+    driver: bridge
